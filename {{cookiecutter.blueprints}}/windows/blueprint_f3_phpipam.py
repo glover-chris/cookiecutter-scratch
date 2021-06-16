@@ -2,24 +2,13 @@ import json  # no_qa
 import os  # no_qa
 
 from calm.dsl.builtins import *  # no_qa
-{% if cookiecutter.use_solarwinds == 'yes' -%}
-from calm.dsl.runbooks import CalmEndpoint as Endpoint
-
-SOLARWINDS_ENDPOINT="solarwinds"
-{%- endif %}
 
 #region credentials
 # Secret Variables
 BP_CRED_windows_PASSWORD = read_local_file("BP_CRED_guest_os_PASSWORD")
 BP_CRED_active_directory_PASSWORD = read_local_file("BP_CRED_active_directory_PASSWORD")
 BP_CRED_prism_central_PASSWORD = read_local_file("BP_CRED_prism_central_PASSWORD")
-{% if cookiecutter.use_phpipam == 'yes' -%}
 BP_CRED_phpipam_PASSWORD = read_local_file("BP_CRED_phpipam_PASSWORD")
-{% elif cookiecutter.use_infoblox == 'yes' -%}
-BP_CRED_infoblox_PASSWORD = read_local_file("BP_CRED_infoblox_PASSWORD")
-{% elif cookiecutter.use_solarwinds == 'yes' -%}
-BP_CRED_solarwinds_PASSWORD = read_local_file("BP_CRED_solarwinds_PASSWORD")
-{% endif %}
 
 #!CUSTOMIZE usernames in credentials below
 # Credentials
@@ -43,28 +32,12 @@ BP_CRED_prism_central = basic_cred(
     name="prism_central",
     type="PASSWORD",
 )
-{% if cookiecutter.use_phpipam == 'yes' -%}
 BP_CRED_phpipam = basic_cred(
     "sbourdeaud",
     BP_CRED_phpipam_PASSWORD,
     name="phpipam",
     type="PASSWORD",
 )
-{% elif cookiecutter.use_infoblox == 'yes' -%}
-BP_CRED_infoblox = basic_cred(
-    "calm",
-    BP_CRED_infoblox_PASSWORD,
-    name="infoblox",
-    type="PASSWORD",
-)
-{% elif cookiecutter.use_solarwinds == 'yes' -%}
-BP_CRED_solarwinds = basic_cred(
-    "admin",
-    BP_CRED_solarwinds_PASSWORD,
-    name="solarwinds",
-    type="PASSWORD",
-)
-{% endif -%}
 #endregion
 
 shared_scripts_path= "../../tasklib/scripts/"
@@ -162,7 +135,7 @@ class Windows(Service):
 
 
 class profile_variables(Profile):
-
+    
     vm_name = CalmVariable.Simple(
         "{{cookiecutter.vm_name}}",
         label="Hostname",
@@ -270,51 +243,6 @@ class profile_variables(Profile):
         description="",
     )
 
-    {% if cookiecutter.use_static_ip == 'yes' -%}
-    vm_ip = CalmVariable.Simple(
-        "{{cookiecutter.vm_ip}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 address for this virtual machine",
-    )
-
-    gateway = CalmVariable.Simple(
-        "{{cookiecutter.gateway}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 address of the gateway",
-    )
-
-    dns1 = CalmVariable.Simple(
-        "{{cookiecutter.dns1}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 address of the primary DNS server",
-    )
-
-    dns2 = CalmVariable.Simple(
-        "{{cookiecutter.dns2}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 address of the secondary DNS server",
-    )
-    {% elif cookiecutter.use_phpipam == 'yes' -%}
     phpipam_ip = CalmVariable.Simple(
         "{{cookiecutter.phpipam_ip}}",
         label="",
@@ -350,143 +278,8 @@ class profile_variables(Profile):
         runtime=True,
         description="Id of the VLAN from which to get an IP in phpIPAM.",
     )
-    {% elif cookiecutter.use_infoblox == 'yes' -%}
-    infoblox_ip = CalmVariable.Simple(
-        "{{cookiecutter.infoblox_ip}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=False,
-        is_mandatory=False,
-        is_hidden=True,
-        runtime=False,
-        description="",
-    )
 
-    network = CalmVariable.WithOptions.FromTask(
-        CalmTask.HTTP.get(
-            "https://@@{infoblox_ip}@@/wapi/v2.7/network?_return_as_object=1",
-            headers={},
-            secret_headers={},
-            content_type="application/json",
-            verify=False,
-            status_mapping={201: True, 404: False},
-            response_paths={"network": "$.result.network"},
-            name="",
-            cred=ref(BP_CRED_infoblox),
-        ),
-        label="",
-        regex="^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        description="Infoblox network from which to get an IPv4 address. Scope options on this network will also define your subnet mask, DNS server and default gateway.",
-    )
-    {% elif cookiecutter.use_solarwinds == 'yes' -%}
-    solarwinds_ip = CalmVariable.Simple(
-        "{{cookiecutter.solarwinds_ip}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=False,
-        is_mandatory=False,
-        is_hidden=True,
-        runtime=False,
-        description="",
-    )
 
-    network = CalmVariable.Simple(
-        "{{cookiecutter.network}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=True,
-        is_hidden=False,
-        description="Solarwinds managed subnet from which to get an IPv4 address.",
-    )
-
-    def_net1 = CalmVariable.Simple(
-        "{{cookiecutter.def_net1}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=True,
-        is_hidden=True,
-        description="Name of Solarwinds managed subnet 1 in cidr notation.",
-    )
-
-    def_net1_gw = CalmVariable.Simple(
-        "{{cookiecutter.def_net1_gw}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=True,
-        is_hidden=True,
-        description="Gateway for Solarwinds managed subnet 1.",
-    )
-
-    def_net1_mask = CalmVariable.Simple(
-        "{{cookiecutter.def_net1_mask}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=True,
-        is_hidden=True,
-        description="Subnet mask for Solarwinds managed subnet 1.",
-    )
-
-    def_net2 = CalmVariable.Simple(
-        "{{cookiecutter.def_net2}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=False,
-        is_hidden=True,
-        description="Name of Solarwinds managed subnet 1 in cidr notation.",
-    )
-
-    def_net2_gw = CalmVariable.Simple(
-        "{{cookiecutter.def_net2_gw}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=False,
-        is_hidden=True,
-        description="Gateway for Solarwinds managed subnet 1.",
-    )
-
-    def_net2_mask = CalmVariable.Simple(
-        "{{cookiecutter.def_net2_mask}}",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=False,
-        is_hidden=True,
-        description="Subnet mask for Solarwinds managed subnet 1.",
-    )
-
-    dns1 = CalmVariable.Simple(
-        "{{cookiecutter.dns1}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=False,
-        description="Please enter the IPv4 address of the primary DNS server",
-    )
-
-    dns2 = CalmVariable.Simple(
-        "{{cookiecutter.dns2}}",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=False,
-        description="Please enter the IPv4 address of the secondary DNS server",
-    )
-    {% endif -%}
-
-{% if cookiecutter.use_phpipam == 'yes' %}
 class ipam_actions(Substrate):
     @action
     def __pre_create__():
@@ -520,55 +313,7 @@ class ipam_actions(Substrate):
             name="PhpIPAMReleaseIp",
             filename=shared_scripts_path + "phpipam/PhpIPAMReleaseIp.py",
         )
-{% elif cookiecutter.use_infoblox == 'yes' %}
-class ipam_actions(Substrate):
-    @action
-    def __pre_create__():
 
-        CalmTask.SetVariable.escript(#InfobloxReserveIp
-            name="InfobloxReserveIp",
-            filename=shared_scripts_path + "infoblox/InfobloxReserveIp.py",
-            variables=["ip_ref","vm_ip"],
-        )
-        CalmTask.SetVariable.escript(#InfobloxSetMask
-            name="InfobloxSetMask",
-            filename=shared_scripts_path + "infoblox/InfobloxSetMask.py",
-            variables=["subnet_mask", "subnet_mask_bits"],
-        )
-        CalmTask.SetVariable.escript(#InfobloxGetOptions
-            name="InfobloxGetOptions",
-            filename=shared_scripts_path + "infoblox/InfobloxGetOptions.py",
-            variables=["dns1", "dns2", "gateway"],
-        )
-
-    @action
-    def __post_delete__():
-
-        CalmTask.Exec.escript(#InfobloxReleaseIp
-            name="InfobloxReleaseIp",
-            filename=shared_scripts_path + "infoblox/InfobloxReleaseIp.py",
-        )
-{% elif cookiecutter.use_solarwinds == 'yes' %}
-class ipam_actions(Substrate):
-    @action
-    def __pre_create__():
-
-        CalmTask.SetVariable.powershell(#SolarwindsGetIp
-            name="SolarWindsGetIp",
-            filename=shared_scripts_path + "solarwinds/SolarWindsGetIp.ps1",
-            target_endpoint=Endpoint.use_existing(SOLARWINDS_ENDPOINT),
-            variables=["vm_ip","subnet_mask","subnet_mask_bits","gateway","cidr"],
-        )
-
-    @action
-    def __post_delete__():
-
-        CalmTask.Exec.powershell(#solarwindsRemoveIp
-            name="SolarWindsRemoveIp",
-            filename=shared_scripts_path + "solarwinds/SolarWindsRemoveIp.ps1",
-            target_endpoint=Endpoint.use_existing(SOLARWINDS_ENDPOINT),
-        )
-{% endif %}
 
 #region AHV
 #!CUSTOMIZE VM defaults, image name, network and AHV cluster below
@@ -585,17 +330,7 @@ class vm_nameResources(AhvVmResources):
     nics = [AhvVmNic.NormalNic.ingress("{{cookiecutter.ahv_network_name}}", cluster="{{cookiecutter.ahv_cluster_name}}")]
 
     guest_customization = AhvVmGC.Sysprep.PreparedScript.withoutDomain(
-        {% if cookiecutter.use_static_ip == 'yes' -%}
-        filename=os.path.join("specs", "vm_name_sysprep_unattend_xml_f2_static.xml")
-        {% elif cookiecutter.use_phpipam == 'yes' -%}
         filename=os.path.join("specs", "vm_name_sysprep_unattend_xml_f3_phpipam.xml")
-        {% elif cookiecutter.use_infoblox == 'yes' -%}
-        filename=os.path.join("specs", "vm_name_sysprep_unattend_xml_f4_infoblox.xml")
-        {% elif cookiecutter.use_solarwinds == 'yes' -%}
-        filename=os.path.join("specs", "vm_name_sysprep_unattend_xml_f5_solarwinds.xml")
-        {% else %}
-        filename=os.path.join("specs", "vm_name_sysprep_unattend_xml_f1_dhcp.xml")
-        {% endif -%}
     )
 
 
@@ -605,7 +340,7 @@ class vm_name(AhvVm):
     resources = vm_nameResources
 
 
-class AHVVM({% if cookiecutter.use_phpipam == 'yes' or cookiecutter.use_infoblox == 'yes'or cookiecutter.use_solarwinds == 'yes' -%}ipam_actions{% else %}Substrate{% endif -%}):
+class AHVVM(ipam_actions):
 
     os_type = "Windows"
     provider_type = "AHV_VM"
@@ -623,7 +358,7 @@ class AHVVM({% if cookiecutter.use_phpipam == 'yes' or cookiecutter.use_infoblox
         credential=ref(BP_CRED_windows),
     )
 
-
+    
 class AHV_Package(Package):
 
     services = [ref(Windows)]
@@ -666,37 +401,14 @@ class AHV(profile_variables):
 
     deployments = [ahv_vm_deployment]
 
-    {%- if cookiecutter.use_static_ip == 'yes' -%}
-    subnet_mask_bits = CalmVariable.Simple(
-        "24",
-        label="",
-        regex="",
-        validate_regex=False,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 subnet mask for this virtual machine (in bits format; for exp: 24)",
-    )
-    {%- endif %}
-
 #endregion
 
 #region vSphere
-class vSphereVM({% if cookiecutter.use_phpipam == 'yes' or cookiecutter.use_infoblox == 'yes' or cookiecutter.use_solarwinds == 'yes' -%}ipam_actions{% else %}Substrate{% endif -%}):
+class vSphereVM(ipam_actions):
 
     os_type = "Windows"
     provider_type = "VMWARE_VM"
-    {% if cookiecutter.use_static_ip == 'yes' -%}
-    provider_spec = read_vmw_spec(os.path.join("specs", "vSphereVM_provider_spec_f2_static.yaml"))
-    {% elif cookiecutter.use_phpipam == 'yes' -%}
     provider_spec = read_vmw_spec(os.path.join("specs", "vSphereVM_provider_spec_f3_phpipam.yaml"))
-    {% elif cookiecutter.use_infoblox == 'yes' -%}
-    provider_spec = read_vmw_spec(os.path.join("specs", "vSphereVM_provider_spec_f4_infoblox.yaml"))
-    {% elif cookiecutter.use_solarwinds == 'yes' -%}
-    provider_spec = read_vmw_spec(os.path.join("specs", "vSphereVM_provider_spec_f5_solarwinds.yaml"))
-    {% else %}
-    provider_spec = read_vmw_spec(os.path.join("specs", "vSphereVM_provider_spec_f1_dhcp.yaml"))
-    {% endif -%}
     provider_spec_editables = read_spec(
         os.path.join("specs", "vSphereVM_create_spec_editables.yaml")
     )
@@ -732,28 +444,12 @@ class vSphere(profile_variables):
 
     deployments = [esxi_vm_deployment]
 
-    {%- if cookiecutter.use_static_ip == 'yes' -%}
-    subnet_mask = CalmVariable.Simple(
-        "255.255.252.0",
-        label="",
-        regex="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-        validate_regex=True,
-        is_mandatory=True,
-        is_hidden=False,
-        runtime=True,
-        description="Please enter the IPv4 subnet mask for this virtual machine",
-    )
-    {%- endif %}
-
 #endregion
 
 
 class pracdevcitastarterwindows(Blueprint):
-    {% if cookiecutter.use_static_ip == 'yes' or cookiecutter.use_phpipam == 'yes' or cookiecutter.use_infoblox == 'yes' or cookiecutter.use_solarwinds == 'yes' -%}
     """Windows 2019 Blueprint that requests IPv4 from the user, joins domain, has performance optimization and ejects CDROM. Runs Windows Update and initializes data disk. Sends out an email notification on successful creation of VM."""
-    {% else %}
-    """Windows 2019 Blueprint that assumes DHCP configuration, joins domain, has performance optimization and ejects CDROM. Runs Windows Update and initializes data disk. Sends out an email notification on successful creation of VM."""
-    {% endif -%}
+
     services = [Windows]
     packages = [AHV_Package, vSphere_Package]
     substrates = [AHVVM, vSphereVM]
@@ -762,11 +458,5 @@ class pracdevcitastarterwindows(Blueprint):
         BP_CRED_windows,
         BP_CRED_active_directory,
         BP_CRED_prism_central,
-        {% if cookiecutter.use_phpipam == 'yes' -%}
         BP_CRED_phpipam,
-        {% elif cookiecutter.use_infoblox == 'yes' -%}
-        BP_CRED_infoblox,
-        {% elif cookiecutter.use_solarwinds == 'yes' -%}
-        BP_CRED_solarwinds,
-        {% endif -%}
     ]
