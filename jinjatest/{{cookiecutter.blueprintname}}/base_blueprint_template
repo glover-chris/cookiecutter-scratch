@@ -1,0 +1,9 @@
+{% macro joinaddomain_service_task() %}
+        @action
+        def JoinADDomain():
+            CalmTask.Exec.powershell(name="JoinADDomain", filename="../common_task_library/win_vm_provisionservice/join-ad-domain.ps1", cred=DefaultCreds,)
+{% endmacro %}
+
+{% macro joinaddomain_package_action() %}
+        Win_VM_Provision.JoinADDomain(name="JoinADDomain")
+{% endmacro %}
