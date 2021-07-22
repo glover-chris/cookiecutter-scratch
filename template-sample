@@ -1,0 +1,9 @@
+##########Start of {{cookiecutter.package_name}}.conf ########
+
+#I like your new project {{cookiecutter.package_name}}. I think it will be awsome, but you should consider giving it a better name ${better_package_name}.
+
+#Beginning the configuration per ${user_name} instructions
+
+#some code,conf,etc...
+Alias ${better_package_name}/{{cookiecutter.package_name}}.txt ${workfolder}/${package_name}
+##########End of {{cookiecutter.package_name}}.conf ########

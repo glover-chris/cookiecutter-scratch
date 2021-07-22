@@ -1,6 +1,0 @@
-{
-    "blueprintname": "bpnametest",
-    "os": ["Windows Server 2019", "Windows Server 2016", "RHEL7", "Centos8"],
-    "hypervisor": ["VMWare", "AHV"],
-    "add_AD_join_action": ["yes", "no"]
-}

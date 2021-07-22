@@ -1,0 +1,21 @@
+
+
+   ____ ___ _____  _        ____  _             _            _
+  / ___|_ _|_   _|/ \      / ___|| |_ __ _ _ __| |_ ___ _ __| |
+ | |    | |  | | / _ \ ____\___ \| __/ _` | '__| __/ _ \ '__| |
+ | |___ | |  | |/ ___ \_____|__) | || (_| | |  | ||  __/ |  |_|
+  \____|___| |_/_/   \_\   |____/ \__\__,_|_|   \__\___|_|  (_)
+
+With this Cookiecutter, you will get questions about the following:
+
+
+blueprints_folder_name: Provide the name of the folder which you want Cookiecutter to place your blueprints.
+
+blueprintname: Provide the name you want the blueprint.py file to be named.
+
+ipam_solution: Choose the method in which the blueprint will get an IP address for the created services.
+
+Press Enter to continue.
+
+
+

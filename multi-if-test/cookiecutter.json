@@ -1,0 +1,14 @@
+{
+    "bp_file_name": "test",
+    "selection1": ["no", "yes", "maybe"],
+    "selection2": ["no", "yes", "maybe"],
+
+    "_options": {
+        "selected": {
+            "selections": [
+                "{{ cookiecutter.selection1 }}",
+                "{{ cookiecutter.selection2 }}"
+            ]
+        }
+    }
+}
