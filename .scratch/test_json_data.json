@@ -1,0 +1,140 @@
+{
+    "tabs": [
+      {
+        "tabname": "Details",
+        "views": [
+          {
+            "title": "Some Name",
+            "useBoldText": true,
+            "useBottomMargin": false,
+            "class": "DepictionSubheaderView"
+          },
+          {
+            "itemCornerRadius": 6,
+            "itemSize": "",
+            "screenshots": [
+              {
+                "accessibilityText": "Screenshot",
+                "url": "Screenshot URL 1",
+                "fullSizeURL": "Screenshot URL 1"
+              },
+              {
+                "accessibilityText": "Screenshot",
+                "url": "Screenshot URL 2",
+                "fullSizeURL": "Screenshot URL 2"
+              },
+              {
+                "accessibilityText": "Screenshot",
+                "url": "Screenshot URL 3",
+                "fullSizeURL": "Screenshot URL 3"
+              },
+              {
+                "accessibilityText": "Screenshot",
+                "url": "Screenshot URL 4",
+                "fullSizeURL": "Screenshot URL 4"
+              },
+              {
+                "accessibilityText": "Screenshot",
+                "url": "Screenshot URL 5",
+                "fullSizeURL": "Screenshot URL 5"
+              }
+            ],
+            "ipad": {
+              "itemCornerRadius": 9,
+              "itemSize": "{320, 550.8266666666667}",
+              "screenshots": [
+                {
+                  "accessibilityText": "Screenshot",
+                  "url": " Screenshot URL?size=640",
+                  "fullSizeURL": "Screenshot URL"
+                }
+              ],
+              "class": "DepictionScreenshotView"
+            },
+            "class": "DepictionScreenshotsView"
+          },
+          {
+            "markdown": " Description",
+            "useSpacing": true,
+            "class": "DepictionMarkdownView"
+          },
+          {
+            "class": "DepictionSeparatorView"
+          },
+          {
+            "title": "Known Issues",
+            "class": "DepictionHeaderView"
+          },
+          {
+            "markdown": "None",
+            "useSpacing": true,
+            "class": "DepictionMarkdownView"
+          },
+          {
+            "class": "DepictionSeparatorView"
+          },
+          {
+            "title": "Latest Version",
+            "class": "DepictionHeaderView"
+          },
+          {
+            "title": "1.0",
+            "text": "Latest Version Number",
+            "class": "DepictionTableTextView"
+          },
+          {
+            "title": "Released",
+            "text": "3/10/19",
+            "class": "DepictionTableTextView"
+          },
+          {
+            "title": "Price",
+            "text": "Free",
+            "class": "DepictionTableTextView"
+          },
+          {
+            "title": "Developer",
+            "text": "TestDev",
+            "class": "DepictionTableTextView"
+          },
+          {
+            "title": "Contact Support",
+            "action": "",
+            "class": "DepictionTableButtonView"
+          },
+          {
+            "spacing": 16,
+            "class": "DepictionSpacerView"
+          },
+          {
+            "spacing": 20,
+            "class": "DepictionSpacerView"
+          }
+        ],
+        "class": "DepictionStackView"
+      },
+      {
+        "tabname": "Changelog",
+        "views": [
+          {
+            "title": "1.0",
+            "useBoldText": true,
+            "useBottomMargin": true,
+            "class": "DepictionSubheaderView"
+          },
+          {
+            "markdown": "\t\n\u2022 Initial Release",
+            "useSpacing": false,
+            "class": "DepictionMarkdownView"
+          },
+          {
+            "markdown": "<small style=\"color: #999; margin-top: -8px;\">Released 3/10/2019</small>",
+            "useRawFormat": true,
+            "class": "DepictionMarkdownView"
+          }
+        ],
+        "class": "DepictionStackView"
+      }
+    ],
+    "class": "DepictionTabView"
+  }
